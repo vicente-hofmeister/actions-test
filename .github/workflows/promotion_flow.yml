@@ -1,0 +1,26 @@
+name: Promotion Flow
+on:
+  pull_request:
+    branches:
+      - dev
+jobs:
+  promotion_flow:
+    environment:
+      name: dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN}}
+      - name: Check PR Source
+        run: |
+          echo "Source branch: ${{ github.event.pull_request.head.ref }}"
+          echo "Destination branch: ${{ github.event.pull_request.base.ref }}"
+
+          if [ "${{ github.event.pull_request.base.ref }}" != "dev" ] && [[ "${{ github.event.pull_request.head.ref }}" =~ ^(feature/|bugfix/|hotfix/|release/|docs/).* ]]; then
+            exit 0
+          else
+            echo "Pull requests not allowed."
+            exit 1
+          fi
