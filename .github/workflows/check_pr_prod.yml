@@ -12,7 +12,11 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install GitHub CLI
-        run: sudo apt-get install gh
+        run: |
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo apt-key add -
+          sudo apt-add-repository https://cli.github.com/packages
+          sudo apt-get update
+          sudo apt-get install gh
       - name: Check PR Source
         run: |
           echo "Source branch: ${{ github.event.pull_request.head.ref }}"
@@ -29,6 +33,6 @@ jobs:
           fi
       - name: Close Pull
         if: failure()
-        run: gh pr close ${{ github.event.pull_request.number }}
+        run: gh pr close ${{ github.event.pull_request.number }} --repo ${{ github.repository }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
