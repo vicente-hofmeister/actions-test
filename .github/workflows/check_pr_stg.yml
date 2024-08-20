@@ -1,0 +1,34 @@
+name: Check Pull Request STG
+on:
+  pull_request:
+    branches:
+      - stg
+jobs:
+  check_pr_prod:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh
+      - name: Check PR Source
+        run: |
+          echo "Source branch: ${{ github.event.pull_request.head.ref }}"
+          echo "Destination branch: ${{ github.event.pull_request.base.ref }}"
+          if [ "${{ github.event.pull_request.base.ref }}" != "stg" ]; then
+            exit 0
+          else
+            if [ "${{ github.event.pull_request.head.ref }}" == "dev" ]; then
+              exit 0
+            else
+              echo "Pull requests are only allowed from the 'dev' branch."
+              exit 1
+            fi
+          fi
+      - name: Close Pull
+        if: failure()
+        run: gh pr close ${{ github.event.pull_request.number }} --comment "Auto-closing pull request due to test failure"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
