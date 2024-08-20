@@ -13,10 +13,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install GitHub CLI
         run: |
-          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo apt-key add -
-          sudo apt-add-repository https://cli.github.com/packages
-          sudo apt-get update
-          sudo apt-get install gh
+          sudo apt update
+          sudo apt install gh
       - name: Check PR Source
         run: |
           echo "Source branch: ${{ github.event.pull_request.head.ref }}"
